@@ -2,7 +2,7 @@
 
 **Author:** David Serrano  
 **Status:** Pre-publication research — for academic review  
-**Advisor:** Dr. Seonggyu Park (Oklahoma State University / SWAT-MODFLOW developer)  
+**Advisor:** Dr. Seonggyu Park (Texas Tech University / SWAT-MODFLOW developer)  
 **Date:** April 2026
 
 ---
@@ -103,7 +103,7 @@ Until formal publication, please cite this work as:
 ```
 Serrano, D. (2026). Systematic Analysis of User-Reported Issues in SWAT-MODFLOW:
 Classification, Frequency, and Proposed Solutions. Pre-publication research report.
-GitHub: https://github.com/[your-github-handle]/swat-modflow-analysis
+
 ```
 
 ---
@@ -127,14 +127,14 @@ This pre-publication license will be updated upon formal publication. For permis
 ## Contact
 
 **David Serrano**  
-PhD Candidate  
-[University / Department — add your affiliation]  
-📧 [your email]  
-🔗 [LinkedIn or ResearchGate, optional]
+PhD Student
+[Texas Tech University / Department of Civil and Environmental Engineering]  
+📧 [davidser@ttu.edu]  
+🔗 [[LinkedIn](https://www.linkedin.com/in/david-serrano-suarez/?originalSubdomain=ca)]
 
 **Advisor: Dr. Seonggyu Park**  
 Developer, SWAT-MODFLOW & QSWATMOD2  
-Oklahoma State University  
+Texas Tech University  
 🔗 https://github.com/spark-brc
 
 ---
