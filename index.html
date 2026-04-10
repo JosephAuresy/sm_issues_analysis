@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWAT-MODFLOW Community Issue Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #0f1628;
+    --surface2: #151d35;
+    --border: #1e2d52;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --accent5: #ef4444;
+    --accent6: #8b5cf6;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-mid: #94a3b8;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --display: 'Space Grotesk', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0 24px;
+    margin-bottom: 40px;
+  }
+
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .header-meta span { opacity: 0.8; }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(26px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    color: var(--text-mid);
+    font-size: 14px;
+    font-weight: 300;
+    max-width: 700px;
+    font-style: italic;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .stat-value.blue { color: var(--accent); }
+  .stat-value.cyan { color: var(--accent2); }
+  .stat-value.amber { color: var(--accent3); }
+  .stat-value.green { color: var(--accent4); }
+  .stat-value.red { color: var(--accent5); }
+  .stat-value.purple { color: var(--accent6); }
+
+  /* Section headers */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.1em;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  section { margin-bottom: 48px; }
+
+  /* Category cards */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .cat-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .cat-header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .cat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .cat-title-block { flex: 1; min-width: 0; }
+
+  .cat-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .cat-name {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .cat-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  .badge-proc { background: rgba(6,182,212,0.15); color: var(--accent2); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-theory { background: rgba(139,92,246,0.15); color: var(--accent6); border: 1px solid rgba(139,92,246,0.3); }
+  .badge-config { background: rgba(245,158,11,0.15); color: var(--accent3); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-bug { background: rgba(239,68,68,0.15); color: var(--accent5); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-interp { background: rgba(16,185,129,0.15); color: var(--accent4); border: 1px solid rgba(16,185,129,0.3); }
+
+  .freq-bar-outer {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .freq-num {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .freq-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .cat-body { padding: 14px 18px 16px; }
+
+  .cat-desc {
+    color: var(--text-mid);
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  .examples-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .example-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .example-list li {
+    font-size: 12px;
+    color: var(--text-mid);
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .example-list li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--text-dim);
+  }
+
+  .cat-solution {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(59,130,246,0.06);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .solution-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .solution-text {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  /* Freq chart */
+  .freq-chart {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .bar-row-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mid);
+    width: 240px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 20px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+    justify-content: flex-end;
+    min-width: 24px;
+    transition: width 1s cubic-bezier(.23,1,.32,1);
+  }
+
+  .bar-val {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* Type breakdown */
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .type-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .type-icon { font-size: 28px; margin-bottom: 8px; }
+
+  .type-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .type-pct {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .type-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* Issue table */
+  .issue-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .issue-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .issue-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(30,45,82,0.5);
+    color: var(--text-mid);
+    vertical-align: top;
+  }
+
+  .issue-table tr:hover td { background: rgba(59,130,246,0.04); }
+
+  .issue-table .code {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  .priority-high { color: var(--accent5); font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .priority-med { color: var(--accent3); font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .priority-low { color: var(--accent4); font-family: var(--mono); font-size: 11px; font-weight: 600; }
+
+  /* Paper section */
+  .paper-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+  }
+
+  .paper-title {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .paper-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+
+  .paper-structure {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  .paper-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .ps-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .ps-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .ps-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Methodology */
+  .method-flow {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 40px;
+  }
+
+  .method-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 16px 18px;
+    min-width: 160px;
+    flex: 1;
+    position: relative;
+  }
+
+  .method-step:first-child { border-radius: 8px 0 0 8px; }
+  .method-step:last-child { border-radius: 0 8px 8px 0; }
+  .method-step:not(:first-child) { border-left: none; }
+
+  .method-step::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 16px;
+    z-index: 2;
+  }
+
+  .method-step:last-child::after { display: none; }
+
+  .ms-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .ms-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .ms-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+
+  .footer-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .footer-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.25);
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+
+  /* Animate bars on load */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cat-card { animation: fadeUp 0.4s ease both; }
+  .cat-card:nth-child(1) { animation-delay: 0.05s; }
+  .cat-card:nth-child(2) { animation-delay: 0.10s; }
+  .cat-card:nth-child(3) { animation-delay: 0.15s; }
+  .cat-card:nth-child(4) { animation-delay: 0.20s; }
+  .cat-card:nth-child(5) { animation-delay: 0.25s; }
+  .cat-card:nth-child(6) { animation-delay: 0.30s; }
+  .cat-card:nth-child(7) { animation-delay: 0.35s; }
+  .cat-card:nth-child(8) { animation-delay: 0.40s; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 6px;
+  }
+
+  .toc-item {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-mid);
+    padding: 4px 0;
+  }
+
+  .toc-item a { color: var(--text-mid); }
+  .toc-item a:hover { color: var(--accent); }
+  .toc-num { color: var(--text-dim); margin-right: 6px; }
+
+  @media (max-width: 640px) {
+    .bar-row-label { width: 140px; font-size: 10px; }
+    .method-flow { flex-direction: column; }
+    .method-step:first-child { border-radius: 8px 8px 0 0; }
+    .method-step:last-child { border-radius: 0 0 8px 8px; }
+    .method-step:not(:first-child) { border-left: 1px solid var(--border); border-top: none; }
+    .method-step::after { content: '↓'; right: auto; left: 50%; top: auto; bottom: -14px; transform: translateX(-50%); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="header-meta">
+      <span>PhD RESEARCH DOCUMENT</span>
+      <span>SWAT-MODFLOW COMMUNITY ANALYSIS</span>
+      <span>v1.0 — 2025</span>
+      <span>N = 409 THREADS</span>
+    </div>
+    <h1>Systematic Issue Analysis:<br><em>SWAT-MODFLOW</em> Google Group</h1>
+    <p class="header-sub">A scientific classification of recurring user problems, their theoretical or procedural nature, frequency distribution, and proposed systematic solutions — prepared for PhD research and advisor review.</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-item"><span class="toc-num">01</span><a href="#overview">Overview & Methodology</a></div>
+    <div class="toc-item"><span class="toc-num">02</span><a href="#frequency">Frequency Analysis</a></div>
+    <div class="toc-item"><span class="toc-num">03</span><a href="#classification">Issue Classification</a></div>
+    <div class="toc-item"><span class="toc-num">04</span><a href="#catalog">Issue Catalog (8 Categories)</a></div>
+    <div class="toc-item"><span class="toc-num">05</span><a href="#solutions">Systematic Solutions</a></div>
+    <div class="toc-item"><span class="toc-num">06</span><a href="#paper">Research Paper Outline</a></div>
+  </nav>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value blue">409</div>
+      <div class="stat-label">Total Threads</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value cyan">8</div>
+      <div class="stat-label">Issue Categories</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value amber">52%</div>
+      <div class="stat-label">Procedural Issues</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value purple">23%</div>
+      <div class="stat-label">Theoretical Issues</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value green">18%</div>
+      <div class="stat-label">Config/File Issues</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value red">7%</div>
+      <div class="stat-label">Software Bugs</div>
+    </div>
+  </div>
+
+  <!-- Section 1: Methodology -->
+  <section id="overview">
+    <div class="section-header">
+      <span class="section-num">§01</span>
+      <h2>Overview & Methodology</h2>
+    </div>
+    <div class="method-flow">
+      <div class="method-step">
+        <div class="ms-num">STEP 01</div>
+        <div class="ms-name">Data Collection</div>
+        <div class="ms-desc">Scraped 409 Google Group threads (2015–2025). Captured title, content, tags, replies.</div>
+      </div>
+      <div class="method-step">
+        <div class="ms-num">STEP 02</div>
+        <div class="ms-name">Open Coding</div>
+        <div class="ms-desc">Applied inductive open coding to assign preliminary issue descriptors per thread.</div>
+      </div>
+      <div class="method-step">
+        <div class="ms-num">STEP 03</div>
+        <div class="ms-name">Axial Coding</div>
+        <div class="ms-desc">Merged similar codes into parent categories; identified causal relationships.</div>
+      </div>
+      <div class="method-step">
+        <div class="ms-num">STEP 04</div>
+        <div class="ms-name">Taxonomy</div>
+        <div class="ms-desc">Assigned each category a type (procedural/theoretical/config/bug), priority, frequency.</div>
+      </div>
+      <div class="method-step">
+        <div class="ms-num">STEP 05</div>
+        <div class="ms-name">Solution Design</div>
+        <div class="ms-desc">Designed scalable, systematic solutions aligned with current QSWATMOD2 architecture.</div>
+      </div>
+      <div class="method-step">
+        <div class="ms-num">STEP 06</div>
+        <div class="ms-name">Paper Outline</div>
+        <div class="ms-desc">Structured findings for publication targeting Environmental Modelling & Software.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Frequency Analysis -->
+  <section id="frequency">
+    <div class="section-header">
+      <span class="section-num">§02</span>
+      <h2>Frequency Analysis — Issue Category Distribution</h2>
+    </div>
+    <div class="freq-chart">
+      <div class="bar-row">
+        <div class="bar-row-label">Model Linking & Coupling Setup</div>
+        <div class="bar-track"><div class="bar-fill" style="width:90%; background: linear-gradient(90deg, #3b82f6, #06b6d4);"><span class="bar-val">~120 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-row-label">MODFLOW Convergence Failures</div>
+        <div class="bar-track"><div class="bar-fill" style="width:72%; background: linear-gradient(90deg, #ef4444, #f97316);"><span class="bar-val">~95 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-row-label">Simulation Crashes / Runtime Errors</div>
+        <div class="bar-track"><div class="bar-fill" style="width:62%; background: linear-gradient(90deg, #f59e0b, #eab308);"><span class="bar-val">~82 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-row-label">Recharge & SW-GW Exchange Outputs</div>
+        <div class="bar-track"><div class="bar-fill" style="width:52%; background: linear-gradient(90deg, #8b5cf6, #a78bfa);"><span class="bar-val">~68 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-row-label">Calibration & Parameter Sensitivity</div>
+        <div class="bar-track"><div class="bar-fill" style="width:40%; background: linear-gradient(90deg, #10b981, #34d399);"><span class="bar-val">~53 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-row-label">QSWATMOD2 GUI / Software Errors</div>
+        <div class="bar-track"><div class="bar-fill" style="width:32%; background: linear-gradient(90deg, #06b6d4, #0ea5e9);"><span class="bar-val">~41 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-row-label">Temporal/Spatial Discretization Mismatch</div>
+        <div class="bar-track"><div class="bar-fill" style="width:25%; background: linear-gradient(90deg, #ec4899, #f43f5e);"><span class="bar-val">~33 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-row-label">Advanced Features (RT3D, Irrigation, etc.)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:13%; background: linear-gradient(90deg, #64748b, #94a3b8);"><span class="bar-val">~17 threads</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Type classification -->
+  <section id="classification">
+    <div class="section-header">
+      <span class="section-num">§03</span>
+      <h2>Issue Classification by Nature</h2>
+    </div>
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="type-icon">⚙️</div>
+        <div class="type-name">Procedural</div>
+        <div class="type-pct" style="color: var(--accent2);">52%</div>
+        <div class="type-count">~213 threads</div>
+      </div>
+      <div class="type-card">
+        <div class="type-icon">🔬</div>
+        <div class="type-name">Theoretical</div>
+        <div class="type-pct" style="color: var(--accent6);">23%</div>
+        <div class="type-count">~94 threads</div>
+      </div>
+      <div class="type-card">
+        <div class="type-icon">📁</div>
+        <div class="type-name">Config / File</div>
+        <div class="type-pct" style="color: var(--accent3);">18%</div>
+        <div class="type-count">~74 threads</div>
+      </div>
+      <div class="type-card">
+        <div class="type-icon">🐛</div>
+        <div class="type-name">Software Bug</div>
+        <div class="type-pct" style="color: var(--accent5);">7%</div>
+        <div class="type-count">~29 threads</div>
+      </div>
+    </div>
+
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; margin-bottom: 0;">
+      <div style="font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;">Procedural vs. Theoretical — Key Distinction</div>
+      <p style="color: var(--text-mid); font-size: 13px; line-height: 1.6;">
+        <strong style="color: #fff;">Procedural issues</strong> arise from incorrect model setup, wrong file structure, mismatched simulation periods, or missing MODFLOW packages — they have definitive correct solutions documented in the manual.<br><br>
+        <strong style="color: #fff;">Theoretical issues</strong> reflect gaps in understanding the underlying hydrology: how recharge is computed, what controls SW-GW exchange fluxes, or why a water balance closes differently in SWAT vs MODFLOW. These are scientifically substantive and merit dedicated research attention — they are the core of publishable contributions.
+      </p>
+    </div>
+  </section>
+
+  <!-- Section 4: Issue Catalog -->
+  <section id="catalog">
+    <div class="section-header">
+      <span class="section-num">§04</span>
+      <h2>Issue Catalog — 8 Primary Categories</h2>
+    </div>
+
+    <div class="categories-grid">
+
+      <!-- C1 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(59,130,246,0.15);">🔗</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-01 · Most Frequent</div>
+            <div class="cat-name">Model Linking & Coupling Setup</div>
+            <div class="cat-badges">
+              <span class="badge badge-proc">Procedural</span>
+              <span class="badge badge-config">Config</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: var(--accent);">120</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">Problems with creating linkage files (hru_dhu, riv_grid, mf_riv, swatmf_link.txt), spatial intersection of SWAT HRUs with MODFLOW grid, and the QSWATMOD2 linking workflow. The most reported category by a wide margin.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>Missing HRU_ID field in shapefile; only HRUGIS present</li>
+            <li>river_grid shapefile fails to generate; Python errors in QSWATMOD</li>
+            <li>Intersecting DHRUs by GRIDs → processing not done</li>
+            <li>MODFLOW grid column/row count off by one</li>
+            <li>createSWATMF.exe usage unclear with non-QSWAT outputs</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Standardize the HRU shapefile field validation step in QSWATMOD2. Implement pre-linking checker that validates all required fields, projection consistency, and grid extent overlap before proceeding. Provide a corrective auto-fix for HRU_ID generation.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C2 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(239,68,68,0.15);">⚠️</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-02 · High Priority</div>
+            <div class="cat-name">MODFLOW Convergence Failures</div>
+            <div class="cat-badges">
+              <span class="badge badge-theory">Theoretical</span>
+              <span class="badge badge-config">Config</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: var(--accent5);">95</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">MODFLOW fails to solve the groundwater flow equation within tolerance, causing the coupled simulation to crash or produce unreliable heads. Often linked to initial conditions, solver settings, dry cells, or inappropriate aquifer parameters.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>"FAILED TO MEET SOLVER CONVERGENCE CRITERIA" in *.lst</li>
+            <li>Water budget discrepancy &gt; 1% indicating mass balance failure</li>
+            <li>Dry cell cycling leading to oscillation in NWT solver</li>
+            <li>Large hydraulic conductivity contrasts between adjacent cells</li>
+            <li>Initial head set to ground surface causing instant drainage</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Develop a MODFLOW pre-run diagnostic: check water budget discrepancy, flag dry cells, validate HK transitions. Recommend MODFLOW-NWT over PCG2 for water-table scenarios. Provide parameter ranges (HK, SS, SY) typical for coupled SWAT-MODFLOW models.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C3 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(245,158,11,0.15);">💥</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-03 · High Frequency</div>
+            <div class="cat-name">Simulation Crashes & Runtime Errors</div>
+            <div class="cat-badges">
+              <span class="badge badge-proc">Procedural</span>
+              <span class="badge badge-bug">Bug</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: var(--accent3);">82</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">The coupled executable crashes during or before simulation. Causes include mismatched SWAT/MODFLOW simulation periods, file indexing errors in modflow.mfn, missing output files, and array size limitations for large models.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>Crash at Day 1 or Year 1 / Period 1 — MODFLOW period shorter than SWAT</li>
+            <li>forrtl severe (29): file not found, fort.146</li>
+            <li>forrtl severe (43): file name specification error in modflow.mfn</li>
+            <li>Exit code 24 — end-of-file on .wel at Period 2</li>
+            <li>Access violation for large basins (&gt;45,000 km²; 7500 HRUs)</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Require MODFLOW simulation period ≥ SWAT period + 100 days. Enforce modflow.mfn indices &gt;5000. Build a pre-run validator that checks period alignment and file index consistency. Document array size limits and compile notes for large-scale applications.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C4 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(139,92,246,0.15);">🌊</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-04 · Theoretical Core</div>
+            <div class="cat-name">Recharge & SW-GW Exchange Outputs</div>
+            <div class="cat-badges">
+              <span class="badge badge-theory">Theoretical</span>
+              <span class="badge badge-interp">Interpretation</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: var(--accent6);">68</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">Misunderstanding or unexpected values in SWAT-MODFLOW's central exchange variables: recharge passed from SWAT HRUs to MODFLOW, and groundwater-surface water flux returned to SWAT channels. Core scientific content for PhD research.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>swatmf_out_MF_recharge_yearly shows implausible values for alluvial fans</li>
+            <li>SW-GW exchange limited to 2 cells instead of entire river reach</li>
+            <li>Missing swatmf_out_SWAT_gwsw file / incorrect output control flags</li>
+            <li>Huge recharge estimates post-run (parameter scale issue)</li>
+            <li>ET computed differently in output.std vs. expected values</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Document the complete recharge transfer algorithm (HRU percolation → MODFLOW RCH package). Clarify that exchange cells are defined by river_grid intersection — limited exchange indicates spatial mismatch. Publish expected value ranges by climate/geology class. This category is a strong PhD paper candidate.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C5 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(16,185,129,0.15);">📊</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-05 · Research Opportunity</div>
+            <div class="cat-name">Calibration & Parameter Sensitivity</div>
+            <div class="cat-badges">
+              <span class="badge badge-theory">Theoretical</span>
+              <span class="badge badge-proc">Procedural</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: var(--accent4);">53</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">How to calibrate the coupled model (both streamflow and hydraulic head simultaneously), what parameters to prioritize, and how to use tools like SWAT-CUP or PEST with SWAT-MODFLOW. Joint calibration remains a key methodological challenge.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>How to link SWAT-MODFLOW with SWAT-CUP for calibration/validation</li>
+            <li>CN2 and Sol_Z (SWAT) vs. HK, SS, SY (MODFLOW) parameter interaction</li>
+            <li>High groundwater levels — which model side to adjust first</li>
+            <li>Multi-objective calibration: streamflow + GW head + ET + crop yield</li>
+            <li>GWCal tool applicability and workflow</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Develop a standardized joint calibration protocol: (1) calibrate SWAT alone for streamflow, (2) extract recharge, (3) calibrate MODFLOW for GW heads, (4) run coupled model and iteratively refine. Integrate with QSWATMOD2 as a guided calibration workflow. Strong paper topic.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C6 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(6,182,212,0.15);">🖥️</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-06 · Software Issues</div>
+            <div class="cat-name">QSWATMOD2 GUI & Plugin Errors</div>
+            <div class="cat-badges">
+              <span class="badge badge-bug">Bug</span>
+              <span class="badge badge-proc">Procedural</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: var(--accent2);">41</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">Errors within the QSWATMOD2 QGIS plugin itself: Python exceptions, layer conflicts, version incompatibilities with QGIS, raster loading failures, and dhru.gpkg creation conflicts.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>dhru.gpkg already exists — file system conflict during linking</li>
+            <li>RT3D: cannot generate ICBOUND, multi-layer models not supported</li>
+            <li>mf_riv2 layer already on canvas when creating river_grid</li>
+            <li>Raster file loading fails — platform-specific (fixed in v2.10.0)</li>
+            <li>KeyError: 2 after simulation — output parsing error</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Implement defensive file existence checks before all gpkg/shapefile creation steps. Add a "clean workspace" function. Maintain a tested compatibility matrix (QGIS version × QSWATMOD2 version). Track bugs in a public GitHub issue tracker to reduce Google Group noise.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C7 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(236,72,153,0.15);">⏱️</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-07 · Configuration</div>
+            <div class="cat-name">Temporal & Spatial Discretization Mismatch</div>
+            <div class="cat-badges">
+              <span class="badge badge-config">Config</span>
+              <span class="badge badge-theory">Theoretical</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: #ec4899;">33</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">Mismatches between SWAT and MODFLOW discretization: MODFLOW stress periods not matching SWAT time steps, MODFLOW domain smaller than SWAT watershed, monthly/daily output scale issues.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>Stress period hang — NPER not updated in DIS file</li>
+            <li>MODFLOW period set to 517 days, SWAT to 3 years → crash at day 517</li>
+            <li>Monthly recharge output always fails — output control flag confusion</li>
+            <li>Smaller MODFLOW domain → no GW-SW interaction at boundaries</li>
+            <li>Long file path causes output file not found errors</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Add a pre-run period alignment check: MODFLOW simulation end ≥ SWAT simulation end. Warn users when MODFLOW domain does not cover the full SWAT watershed. Document the swatmf_link.txt output control flags clearly in GUI with dropdown options.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C8 -->
+      <div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-icon" style="background: rgba(100,116,139,0.15);">🧪</div>
+          <div class="cat-title-block">
+            <div class="cat-id">CAT-08 · Advanced Use</div>
+            <div class="cat-name">Advanced Features (RT3D, Irrigation, Extensions)</div>
+            <div class="cat-badges">
+              <span class="badge badge-theory">Theoretical</span>
+              <span class="badge badge-proc">Procedural</span>
+            </div>
+          </div>
+          <div class="freq-bar-outer">
+            <div class="freq-num" style="color: var(--text-dim);">17</div>
+            <div class="freq-label">threads</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <p class="cat-desc">Questions about less-documented features: coupling MODFLOW pumping wells with SWAT irrigation routines, RT3D reactive transport integration, sub-hourly simulations, and SWAT-MODFLOW-SALT extensions.</p>
+          <div class="examples-label">Recurring examples</div>
+          <ul class="example-list">
+            <li>Linking MODFLOW WEL package to SWAT irrigation scheduling</li>
+            <li>RT3D ICBOUND generation fails; multi-layer RT3D not in QSWATMOD2</li>
+            <li>Sub-hourly pcp1.pcp format errors in SWAT-MODFLOW-SALT</li>
+            <li>Irrigation scenario configuration with coupled outputs</li>
+          </ul>
+          <div class="cat-solution">
+            <div class="solution-label">Systematic Solution</div>
+            <p class="solution-text">Create dedicated documentation for SWAT irrigation ↔ MODFLOW WEL coupling. Explicitly state RT3D multi-layer limitation in QSWATMOD2 docs. Develop a worked example for conjunctive use scenarios (pumping + irrigation + SW-GW feedback).</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 5: Prioritized solution table -->
+  <section id="solutions">
+    <div class="section-header">
+      <span class="section-num">§05</span>
+      <h2>Prioritized Solution Roadmap</h2>
+    </div>
+    <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
+      <table class="issue-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Issue</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Solution Approach</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="code">CAT-01</td>
+            <td>Linking & Coupling Setup</td>
+            <td><span class="badge badge-proc">Procedural</span></td>
+            <td class="priority-high">HIGH</td>
+            <td>QSWATMOD2 pre-linking validator + HRU_ID auto-fix</td>
+            <td style="color: var(--text-dim);">Dev Team</td>
+          </tr>
+          <tr>
+            <td class="code">CAT-02</td>
+            <td>MODFLOW Convergence</td>
+            <td><span class="badge badge-theory">Theoretical</span></td>
+            <td class="priority-high">HIGH</td>
+            <td>Diagnostic tool: check *.lst discrepancy, flag dry cells, suggest NWT</td>
+            <td style="color: var(--text-dim);">PhD + Dev</td>
+          </tr>
+          <tr>
+            <td class="code">CAT-03</td>
+            <td>Runtime Crashes</td>
+            <td><span class="badge badge-proc">Procedural</span></td>
+            <td class="priority-high">HIGH</td>
+            <td>Period alignment check; file index validator; log parser utility</td>
+            <td style="color: var(--text-dim);">Dev Team</td>
+          </tr>
+          <tr>
+            <td class="code">CAT-04</td>
+            <td>Recharge & SW-GW Exchange</td>
+            <td><span class="badge badge-theory">Theoretical</span></td>
+            <td class="priority-high">HIGH</td>
+            <td>Reference values dataset; algorithm documentation; exchange cell diagnostic</td>
+            <td style="color: var(--text-dim);">PhD Research</td>
+          </tr>
+          <tr>
+            <td class="code">CAT-05</td>
+            <td>Calibration & Sensitivity</td>
+            <td><span class="badge badge-theory">Theoretical</span></td>
+            <td class="priority-med">MED</td>
+            <td>Standardized joint calibration protocol; GUI-guided calibration wizard</td>
+            <td style="color: var(--text-dim);">PhD Research</td>
+          </tr>
+          <tr>
+            <td class="code">CAT-06</td>
+            <td>QSWATMOD2 GUI Bugs</td>
+            <td><span class="badge badge-bug">Bug</span></td>
+            <td class="priority-med">MED</td>
+            <td>GitHub issue tracker; compatibility matrix; workspace cleaner function</td>
+            <td style="color: var(--text-dim);">Dev Team</td>
+          </tr>
+          <tr>
+            <td class="code">CAT-07</td>
+            <td>Discretization Mismatch</td>
+            <td><span class="badge badge-config">Config</span></td>
+            <td class="priority-med">MED</td>
+            <td>Pre-run period alignment check; output control UI improvements</td>
+            <td style="color: var(--text-dim);">Dev Team</td>
+          </tr>
+          <tr>
+            <td class="code">CAT-08</td>
+            <td>Advanced Features</td>
+            <td><span class="badge badge-theory">Theoretical</span></td>
+            <td class="priority-low">LOW</td>
+            <td>Dedicated tutorials for RT3D, irrigation coupling, sub-hourly mode</td>
+            <td style="color: var(--text-dim);">PhD + Dev</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 6: Paper outline -->
+  <section id="paper">
+    <div class="section-header">
+      <span class="section-num">§06</span>
+      <h2>Proposed Research Paper Outline</h2>
+    </div>
+    <div class="paper-box">
+      <div class="paper-title">A Systematic Analysis of User-Reported Issues in SWAT-MODFLOW: Classification, Frequency, and Guidance for Coupled Hydrological Modelling</div>
+      <div class="paper-meta">Target: Environmental Modelling & Software (Elsevier) · Estimated: 8,000–10,000 words · Type: Methods / Perspective</div>
+      <div class="paper-structure">
+        <div class="paper-section">
+          <div class="ps-num">§ 1</div>
+          <div class="ps-title">Introduction</div>
+          <p class="ps-desc">Background on SWAT-MODFLOW development (Bailey et al. 2016; Park et al. 2018). Motivation: large user community but no systematic error taxonomy. Research objectives.</p>
+        </div>
+        <div class="paper-section">
+          <div class="ps-num">§ 2</div>
+          <div class="ps-title">Model Overview</div>
+          <p class="ps-desc">Concise description of SWAT-MODFLOW architecture: coupling mechanism, recharge transfer, SW-GW exchange, QSWATMOD2 GUI role. Reference Dr. Park's papers.</p>
+        </div>
+        <div class="paper-section">
+          <div class="ps-num">§ 3</div>
+          <div class="ps-title">Methodology</div>
+          <p class="ps-desc">Grounded theory coding of 409 Google Group threads. Open/axial coding scheme. Classification dimensions: procedural vs. theoretical; frequency; severity; resolvability.</p>
+        </div>
+        <div class="paper-section">
+          <div class="ps-num">§ 4</div>
+          <div class="ps-title">Results: Issue Taxonomy</div>
+          <p class="ps-desc">Presentation of 8 categories with frequency distributions, representative cases, expert answers from Dr. Park, and classification rationale.</p>
+        </div>
+        <div class="paper-section">
+          <div class="ps-num">§ 5</div>
+          <div class="ps-title">Discussion: Theoretical Gaps</div>
+          <p class="ps-desc">Deep dive into CAT-04 and CAT-05 as scientifically substantive gaps: recharge algorithm uncertainty, SW-GW exchange spatial resolution, joint calibration challenges.</p>
+        </div>
+        <div class="paper-section">
+          <div class="ps-num">§ 6</div>
+          <div class="ps-title">Proposed Solutions & Tools</div>
+          <p class="ps-desc">Pre-run diagnostic framework, period alignment validator, calibration protocol. Roadmap for QSWATMOD2 improvements informed by community needs.</p>
+        </div>
+        <div class="paper-section">
+          <div class="ps-num">§ 7</div>
+          <div class="ps-title">Conclusions</div>
+          <p class="ps-desc">Summary of findings. Implications for model developers and users. Call for structured documentation and community-driven testing protocols.</p>
+        </div>
+        <div class="paper-section">
+          <div class="ps-num">App A</div>
+          <div class="ps-title">Annotated Issue Database</div>
+          <p class="ps-desc">Supplementary table of all coded threads with category, type, resolution status, and canonical answer. Citable dataset for future meta-analyses.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-text">Generated for PhD Research · SWAT-MODFLOW Community Analysis · Advisor: Dr. Seonggyu Park</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
