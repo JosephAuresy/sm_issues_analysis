@@ -135,7 +135,7 @@ PhD Student
 **Advisor: Dr. Seonggyu Park**  
 Developer, SWAT-MODFLOW & QSWATMOD2  
 Texas Tech University  
-🔗 https://github.com/spark-brc
+🔗 https://github.com/spark-hydro/
 
 ---
 
