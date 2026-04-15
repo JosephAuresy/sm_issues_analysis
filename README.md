@@ -1,7 +1,7 @@
 # SWAT-MODFLOW Community Issue Analysis
 
 **Author:** David Serrano  
-**Status:** Pre-publication research — for academic review  
+**Status:** Work in progress — partial results shared for academic transparency  
 **Advisor:** Dr. Seonggyu Park (Texas Tech University / SWAT-MODFLOW developer)  
 **Date:** April 2026
 
@@ -9,14 +9,12 @@
 
 ## Overview
 
-This repository contains a systematic scientific analysis of user-reported issues in the [SWAT-MODFLOW Google Group](https://groups.google.com/g/swat-modflow), covering approximately 409 discussion threads from 2015 to 2025.
+This repository contains partial results from an ongoing research project analyzing user-reported issues in the public SWAT-MODFLOW Google Group (2015–2025).
 
-The analysis was conducted as part of ongoing PhD research on coupled surface water–groundwater modelling. It applies a grounded theory coding methodology (open coding → axial coding → taxonomy) to classify, quantify, and propose systematic solutions for the recurring problems faced by the SWAT-MODFLOW user community worldwide.
+The purpose of this repository is to document **descriptive observations** and **high-level patterns** identified during the early stages of a broader PhD research agenda on coupled surface water–groundwater modelling.
 
-The findings are intended to support:
-- A peer-reviewed publication targeting **Environmental Modelling & Software** (Elsevier)
-- Improvements to the **QSWATMOD2** graphical interface and workflow documentation
-- A referenceable knowledge base for future SWAT-MODFLOW users and researchers
+⚠️ **Important:**  
+This repository intentionally excludes the core methodology, theoretical framework, diagnostic algorithms, and generalizable concepts under development. Only non-sensitive, non-proprietary components are shared here.
 
 ---
 
@@ -24,75 +22,38 @@ The findings are intended to support:
 
 | File | Description |
 |------|-------------|
-| `index.html` | Interactive analysis dashboard (GitHub Pages ready) |
+| `index.html` | Interactive dashboard summarizing descriptive findings |
 | `README.md` | This document |
+| `VISION.md` | High-level research vision (non-technical) |
+| `NOTICE.md` | Intellectual property notice |
 
 ---
 
-## How to View
+## What This Repository Includes
 
-### Online (GitHub Pages)
-Once deployed, the analysis is accessible at:
-```
-https://[your-github-handle].github.io/swat-modflow-analysis
-```
-
-### Locally
-Clone the repository and open `index.html` in any modern web browser. No dependencies or build steps required.
-
-```bash
-git clone https://github.com/[your-github-handle]/swat-modflow-analysis.git
-cd swat-modflow-analysis
-open index.html   # macOS
-# or
-start index.html  # Windows
-```
+- Descriptive summaries of recurring issue categories  
+- High-level frequency counts  
+- A visual dashboard for academic review  
+- Context for future publication
 
 ---
 
-## Methodology Summary
+## What This Repository Does *Not* Include
 
-Issues were classified using a two-pass coding scheme inspired by grounded theory:
+- Core diagnostic methodology  
+- Theoretical framework  
+- Generalizable model-failure theory  
+- Algorithms, scripts, or computational tools  
+- Full taxonomy or classification logic  
+- Any unpublished intellectual property
 
-1. **Open coding** — each thread assigned a preliminary descriptor based on title and content
-2. **Axial coding** — descriptors merged into 8 parent categories with causal relationships identified
-3. **Taxonomy** — each category assigned a type (procedural / theoretical / configuration / software bug), frequency count, priority level, and systematic solution
-
-**Classification dimensions:**
-
-| Dimension | Values |
-|-----------|--------|
-| Nature | Procedural · Theoretical · Config/File · Software Bug |
-| Priority | High · Medium · Low |
-| Resolvability | Documentation fix · Code fix · Research needed |
-| Frequency | Estimated thread count per category |
-
----
-
-## Issue Categories (Summary)
-
-| ID | Category | ~Threads | Type | Priority |
-|----|----------|----------|------|----------|
-| CAT-01 | Model Linking & Coupling Setup | 120 | Procedural | HIGH |
-| CAT-02 | MODFLOW Convergence Failures | 95 | Theoretical | HIGH |
-| CAT-03 | Simulation Crashes & Runtime Errors | 82 | Procedural + Bug | HIGH |
-| CAT-04 | Recharge & SW-GW Exchange Outputs | 68 | Theoretical | HIGH |
-| CAT-05 | Calibration & Parameter Sensitivity | 53 | Theoretical | MEDIUM |
-| CAT-06 | QSWATMOD2 GUI & Plugin Errors | 41 | Software Bug | MEDIUM |
-| CAT-07 | Temporal/Spatial Discretization Mismatch | 33 | Config | MEDIUM |
-| CAT-08 | Advanced Features (RT3D, Irrigation) | 17 | Mixed | LOW |
+These components remain private and are part of the author’s ongoing PhD research.
 
 ---
 
 ## Intended Publication
 
-> **Working title:** *A Systematic Analysis of User-Reported Issues in SWAT-MODFLOW: Classification, Frequency, and Guidance for Coupled Hydrological Modelling*
->
-> **Target journal:** Environmental Modelling & Software (Elsevier)  
-> **Type:** Methods / Perspective article  
-> **Authors (proposed):** David Serrano, Seonggyu Park
-
-This analysis constitutes the observational foundation for the paper. The full manuscript is in preparation.
+A manuscript based on this work is currently under preparation.
 
 ---
 
@@ -101,8 +62,8 @@ This analysis constitutes the observational foundation for the paper. The full m
 Until formal publication, please cite this work as:
 
 ```
-Serrano, D. (2026). Systematic Analysis of User-Reported Issues in SWAT-MODFLOW:
-Classification, Frequency, and Proposed Solutions. Pre-publication research report.
+Serrano, D. (2026). SWAT-MODFLOW Community Issue Analysis.
+Partial results from ongoing PhD research. Texas Tech University.
 
 ```
 
@@ -110,40 +71,19 @@ Classification, Frequency, and Proposed Solutions. Pre-publication research repo
 
 ## License
 
-Copyright © 2026 David Serrano. All rights reserved.
+Copyright © 2026  
+All rights reserved.
 
-This work is shared for **academic review purposes only** under the following terms:
+This repository is shared for **academic review only**.  
+Redistribution, reproduction, or derivative works are **not permitted** without written consent.
 
-- ✅ Viewing, reading, and evaluating the content is permitted
-- ✅ Sharing the repository link with academic colleagues is permitted
-- ✅ Citing this work in academic publications (with attribution) is permitted
-- ❌ Redistribution, reproduction, or derivative works are **not permitted** without explicit written consent from the author
-- ❌ Commercial use of any kind is **not permitted**
-
-This pre-publication license will be updated upon formal publication. For permissions or collaboration enquiries, please contact the author directly.
+See `NOTICE.md` for full terms.
 
 ---
 
 ## Contact
 
 **David Serrano**  
-PhD Student
-[Texas Tech University / Department of Civil and Environmental Engineering]  
-📧 [davidser@ttu.edu]  
-🔗 [[LinkedIn](https://www.linkedin.com/in/david-serrano-suarez/?originalSubdomain=ca)]
-
-**Advisor: Dr. Seonggyu Park**  
-Developer, SWAT-MODFLOW & QSWATMOD2  
-Texas Tech University  
-🔗 https://github.com/spark-hydro/
-
----
-
-## Acknowledgements
-
-This research builds on the foundational work of Dr. Seonggyu Park and Dr. Ryan Bailey in developing SWAT-MODFLOW and QSWATMOD2. The analysis data is derived from the public SWAT-MODFLOW Google Group community, whose members' questions and experiences make this study possible.
-
-Key references:
-- Bailey, R.T. et al. (2016). *Assessing Regional-Scale Spatio-Temporal Patterns of Groundwater-Surface Water Interactions using a Coupled SWAT-MODFLOW Model.* Hydrological Processes. https://doi.org/10.1002/hyp.10933
-- Park, S. et al. (2018). *A QGIS-based graphical user interface for application and evaluation of SWAT-MODFLOW models.* Environmental Modelling & Software. https://doi.org/10.1016/j.envsoft.2018.10.017
-- Harbaugh, A.W. (2005). *MODFLOW-2005, the U.S. Geological Survey modular ground-water model.* USGS Techniques and Methods.
+PhD Student — Texas Tech University  
+📧 davidser@ttu.edu  
+🔗 LinkedIn: https://www.linkedin.com/in/david-serrano-suarez/
