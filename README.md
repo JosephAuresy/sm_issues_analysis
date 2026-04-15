@@ -26,6 +26,7 @@ This repository intentionally excludes the core methodology, theoretical framewo
 | `README.md` | This document |
 | `VISION.md` | High-level research vision (non-technical) |
 | `NOTICE.md` | Intellectual property notice |
+| `preprint_v0.1.md` | Preprint (v0.1) summarizing descriptive findings and research context |
 
 ---
 
