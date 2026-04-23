@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foundational Framework — Four-Model Analysis · David Serrano</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08080e;--surf:#0c0c1a;--surf2:#10101f;--border:#18183a;
+    --gold:#f59e0b;--c1:#4ade80;--c2:#60a5fa;--c3:#f472b6;--c4:#818cf8;
+    --red:#f87171;--teal:#34d399;--amber:#fbbf24;
+    --text:#e8e8ff;--mid:#6b6b9e;--dim:#28284a;
+    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--disp:'Syne',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7}
+  body::before{content:'';position:fixed;inset:0;
+    background-image:radial-gradient(rgba(245,158,11,.035) 1px,transparent 1px);
+    background-size:22px 22px;pointer-events:none;z-index:0}
+  .w{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+  .hero{padding:52px 0 36px;border-bottom:1px solid var(--border);margin-bottom:44px}
+  .stamp{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+    background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);
+    padding:5px 14px;border-radius:100px;margin-bottom:20px}
+  .sdot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:gld 2.5s infinite}
+  @keyframes gld{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(.7)}}
+  h1{font-family:var(--disp);font-size:clamp(24px,4vw,46px);font-weight:800;line-height:1.05;color:#fff;margin-bottom:6px}
+  .h1b{font-family:var(--disp);font-size:clamp(15px,2.2vw,24px);font-weight:700;color:var(--gold);margin-bottom:18px}
+  .hdesc{color:var(--mid);font-size:13.5px;font-weight:300;max-width:820px;line-height:1.7;margin-bottom:22px}
+  .hmeta{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;
+    color:var(--dim);padding:14px 18px;background:var(--surf);border:1px solid var(--border);border-radius:8px}
+  .hmeta b{color:var(--mid);font-weight:500}
+  section{margin-bottom:54px}
+  .sh{display:flex;align-items:center;gap:12px;padding-bottom:12px;
+    border-bottom:1px solid var(--border);margin-bottom:24px}
+  .sn{font-family:var(--mono);font-size:11px;color:var(--gold);
+    background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);
+    padding:2px 9px;border-radius:3px;letter-spacing:.08em}
+  h2{font-family:var(--disp);font-size:19px;color:#fff}
+  .ipbox{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.28);
+    border-radius:8px;padding:22px 26px;margin-bottom:40px}
+  .ip-title{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;
+    letter-spacing:.12em;margin-bottom:10px}
+  .ip-text{font-size:13px;color:var(--mid);line-height:1.7}
+  .ip-text strong{color:var(--text)}
+  .ip-cite{font-family:var(--mono);font-size:12px;color:var(--gold);margin-top:12px;
+    padding-top:12px;border-top:1px solid rgba(245,158,11,.15)}
+  .navlinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:40px}
+  .navlink{background:var(--surf);border:1px solid var(--border);border-radius:8px;
+    padding:16px 18px;text-decoration:none;transition:border-color .2s,transform .2s;display:block}
+  .navlink:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .nl-tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+  .nl-title{font-family:var(--disp);font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
+  .nl-threads{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .m4grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:40px}
+  .mcard{background:var(--surf);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .mcard-top{padding:16px 20px 12px;border-bottom:1px solid var(--border)}
+  .mtag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+  .mname{font-family:var(--disp);font-size:21px;font-weight:800;color:#fff;margin-bottom:3px}
+  .msub{font-size:12px;color:var(--mid)}
+  .mbody{padding:14px 20px 18px}
+  .mrow{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  .mrow:last-child{border:none;margin:0;padding:0}
+  .mlbl{font-family:var(--mono);font-size:11px;color:var(--mid)}
+  .mval{font-family:var(--mono);font-size:13px;font-weight:500;color:#fff}
+  .grad-section{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:26px 28px;margin-bottom:40px}
+  .gs-title{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px}
+  .gs-prop{margin-bottom:22px}
+  .gs-label{font-size:13px;color:var(--text);font-weight:500;margin-bottom:10px}
+  .gs-bars{display:flex;flex-direction:column;gap:8px}
+  .gs-row{display:flex;align-items:center;gap:12px}
+  .gs-model{font-family:var(--mono);font-size:11px;width:110px;flex-shrink:0}
+  .gs-track{flex:1;height:20px;background:var(--surf2);border-radius:4px;overflow:hidden}
+  .gs-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-right:8px;justify-content:flex-end}
+  .gs-pct{font-family:var(--mono);font-size:10px;font-weight:500;color:rgba(255,255,255,.9)}
+  .gs-note{font-size:12px;color:var(--dim);margin-top:8px;font-style:italic}
+  .prop-box{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.2);
+    border-radius:8px;padding:22px 26px;margin-bottom:40px}
+  .prop-label{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
+  .prop-quote{font-size:15px;color:var(--text);line-height:1.7;font-style:italic;margin-bottom:14px}
+  .prop-evidence{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .pe{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:12px 14px}
+  .pe-num{font-family:var(--disp);font-size:24px;font-weight:800;margin-bottom:4px}
+  .pe-lbl{font-size:12px;color:var(--mid)}
+  .ft-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:40px}
+  .ftbl{width:100%;border-collapse:collapse;font-size:12px}
+  .ftbl th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--dim);text-align:left;padding:11px 14px;background:var(--surf2);border-bottom:1px solid var(--border)}
+  .ftbl td{padding:9px 14px;border-bottom:1px solid rgba(24,24,58,.5);color:var(--mid);vertical-align:top}
+  .ftbl tr:hover td{background:rgba(245,158,11,.02)}
+  .tcat{font-family:var(--mono);font-size:11px;color:var(--gold);font-weight:500}
+  .c1t{color:var(--c1);font-family:var(--mono);font-size:11px}
+  .c2t{color:var(--c2);font-family:var(--mono);font-size:11px}
+  .c3t{color:var(--c3);font-family:var(--mono);font-size:11px}
+  .c4t{color:var(--c4);font-family:var(--mono);font-size:11px}
+  .nat{color:var(--dim);font-family:var(--mono);font-size:11px}
+  .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:40px}
+  .hcard{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:18px 20px}
+  .hid{font-family:var(--mono);font-size:10px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+  .hstatus{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:3px;text-transform:uppercase;margin-bottom:10px;display:inline-block}
+  .conf{background:rgba(52,211,153,.1);color:var(--teal);border:1px solid rgba(52,211,153,.25)}
+  .part{background:rgba(245,158,11,.1);color:var(--gold);border:1px solid rgba(245,158,11,.25)}
+  .pend{background:rgba(129,140,248,.1);color:#818cf8;border:1px solid rgba(129,140,248,.25)}
+  .htext{font-size:13px;color:var(--mid);line-height:1.55}
+  .hev{margin-top:8px;padding:8px 10px;background:var(--surf2);border-left:2px solid var(--gold);
+    border-radius:0 4px 4px 0;font-size:12px;color:var(--dim);line-height:1.5}
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:40px}
+  .cbox{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:18px}
+  .cnum{font-family:var(--disp);font-size:36px;font-weight:800;color:var(--gold);opacity:.35;margin-bottom:-4px}
+  .ctit{font-size:14px;font-weight:600;color:#fff;margin-bottom:6px}
+  .cdesc{font-size:12px;color:var(--mid);line-height:1.55}
+  footer{border-top:1px solid var(--border);padding:24px 0;margin-top:40px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  .ft{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .ftag{font-family:var(--mono);font-size:11px;color:var(--gold);
+    background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);padding:4px 10px;border-radius:3px}
+  a{color:var(--gold);text-decoration:none}
+  @media(max-width:640px){.gs-model{width:80px;font-size:10px}}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="hero">
+    <div class="stamp"><span class="sdot"></span>Priority of Discovery · Pre-publication · 4-Model Edition</div>
+    <h1>Foundational Framework for Diagnosing</h1>
+    <div class="h1b">User–Model Interaction Failures in Complex Scientific Models</div>
+    <p class="hdesc">A novel, model-agnostic framework for systematically diagnosing the nature, frequency, and origin of failures at the interface between users and complex scientific models. Empirically grounded in four hydrological modelling communities — <strong style="color:var(--c1)">SWAT2012</strong>, <strong style="color:var(--c2)">SWAT+</strong>, <strong style="color:var(--c3)">SWAT-MODFLOW</strong>, and <strong style="color:var(--c4)">MODFLOW</strong> — covering ~9,500+ threads across five Google Groups from 2009 to 2026.</p>
+    <div class="hmeta">
+      <span><b>Author:</b> David Serrano</span>
+      <span><b>Advisor:</b> Dr. Seonggyu Park · OSU</span>
+      <span><b>Status:</b> Pre-publication · April 2026</span>
+      <span><b>Empirical base:</b> ~9,500+ threads · 5 Google Groups · 2009–2026</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="sh"><span class="sn">§00</span><h2>Community Dashboards</h2></div>
+    <div class="navlinks">
+      <a class="navlink" href="swatuser.html">
+        <div class="nl-tag" style="color:var(--c1)">SWAT-user Group</div>
+        <div class="nl-title" style="color:var(--c1)">SWAT 2012</div>
+        <div class="nl-threads">~5,500+ threads · ArcSWAT · SWAT-CUP</div>
+      </a>
+      <a class="navlink" href="swatplus.html">
+        <div class="nl-tag" style="color:var(--c2)">SWAT+ Groups (×3)</div>
+        <div class="nl-title" style="color:var(--c2)">SWAT+</div>
+        <div class="nl-threads">~600+ threads · Editor · Toolbox</div>
+      </a>
+      <a class="navlink" href="swat_modflow.html">
+        <div class="nl-tag" style="color:var(--c3)">SWAT-MODFLOW Group</div>
+        <div class="nl-title" style="color:var(--c3)">SWAT-MODFLOW</div>
+        <div class="nl-threads">~409 threads · QSWATMOD2</div>
+      </a>
+      <a class="navlink" href="modflow.html">
+        <div class="nl-tag" style="color:var(--c4)">MODFLOW Users Group</div>
+        <div class="nl-title" style="color:var(--c4)">MODFLOW</div>
+        <div class="nl-threads">~2,579 threads · ModelMuse · FloPy</div>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="sn">§01</span><h2>Intellectual Property Notice</h2></div>
+    <div class="ipbox">
+      <div class="ip-title">⚖️ Priority of Discovery — Conceptual Overview Only</div>
+      <p class="ip-text">This document establishes authorship priority for the framework concepts. The complete taxonomy (T-CAT), coding scheme, and analytical workflow are in the private repository. <strong>Original contributions claimed:</strong> (1) Universal T-CAT Taxonomy — 12-category, 6-domain; (2) Four-way nature classification system; (3) Theoretical% Complexity Law — confirmed across 4 models; (4) Complexity Frontier concept per model; (5) Diagnostic Algorithm for SWAT-MF and SWAT+; (6) Reproducible Python pipeline for community health monitoring.</p>
+      <div class="ip-cite">📄 Serrano, D. (2026). Foundational Framework for Diagnosing User–Model Interaction Failures in Complex Scientific Models. Pre-publication priority document. Advisor: Dr. Seonggyu Park, Oklahoma State University.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="sn">§02</span><h2>Four-Model Dataset — Key Statistics</h2></div>
+    <div class="m4grid">
+      <div class="mcard">
+        <div class="mcard-top"><div class="mtag" style="color:var(--c1)">Mature Land Model · Baseline</div>
+          <div class="mname" style="color:var(--c1)">SWAT 2012</div><div class="msub">ArcSWAT / QSWAT / SWAT-CUP</div></div>
+        <div class="mbody">
+          <div class="mrow"><span class="mlbl">Threads</span><span class="mval">~5,500+</span></div>
+          <div class="mrow"><span class="mlbl">Theoretical</span><span class="mval" style="color:var(--c1)">18% ← lowest</span></div>
+          <div class="mrow"><span class="mlbl">Procedural</span><span class="mval">55% ← highest</span></div>
+          <div class="mrow"><span class="mlbl">Bug rate</span><span class="mval">8%</span></div>
+          <div class="mrow"><span class="mlbl">Complexity</span><span class="mval" style="color:var(--c1)">★★★☆☆</span></div>
+          <div class="mrow"><span class="mlbl">Frontier</span><span class="mval" style="font-size:11px;color:var(--c1)">Sediment / nutrients</span></div>
+        </div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-top"><div class="mtag" style="color:var(--c2)">Active Dev · Multi-Interface</div>
+          <div class="mname" style="color:var(--c2)">SWAT+</div><div class="msub">QSWAT+ / Editor / Toolbox</div></div>
+        <div class="mbody">
+          <div class="mrow"><span class="mlbl">Threads</span><span class="mval">~600+</span></div>
+          <div class="mrow"><span class="mlbl">Theoretical</span><span class="mval" style="color:var(--c2)">21%</span></div>
+          <div class="mrow"><span class="mlbl">Procedural</span><span class="mval">48%</span></div>
+          <div class="mrow"><span class="mlbl">Bug rate</span><span class="mval" style="color:var(--red)">12% ← highest</span></div>
+          <div class="mrow"><span class="mlbl">Complexity</span><span class="mval" style="color:var(--c2)">★★★☆☆</span></div>
+          <div class="mrow"><span class="mlbl">Frontier</span><span class="mval" style="font-size:11px;color:var(--c2)">Decision table logic</span></div>
+        </div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-top"><div class="mtag" style="color:var(--c3)">Coupled SW+GW · Specialist</div>
+          <div class="mname" style="color:var(--c3)">SWAT-MF</div><div class="msub">QSWATMOD2 · MODFLOW-NWT</div></div>
+        <div class="mbody">
+          <div class="mrow"><span class="mlbl">Threads</span><span class="mval">~409</span></div>
+          <div class="mrow"><span class="mlbl">Theoretical</span><span class="mval" style="color:var(--c3)">23%</span></div>
+          <div class="mrow"><span class="mlbl">Procedural</span><span class="mval">52%</span></div>
+          <div class="mrow"><span class="mlbl">Bug rate</span><span class="mval" style="color:var(--teal)">7% ← lowest</span></div>
+          <div class="mrow"><span class="mlbl">Complexity</span><span class="mval" style="color:var(--c3)">★★★★☆</span></div>
+          <div class="mrow"><span class="mlbl">Frontier</span><span class="mval" style="font-size:11px;color:var(--c3)">SW-GW exchange calib.</span></div>
+        </div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-top"><div class="mtag" style="color:var(--c4)">Pure GW Solver · Most Theoretical</div>
+          <div class="mname" style="color:var(--c4)">MODFLOW</div><div class="msub">ModelMuse / FloPy / PEST</div></div>
+        <div class="mbody">
+          <div class="mrow"><span class="mlbl">Threads</span><span class="mval">~2,579</span></div>
+          <div class="mrow"><span class="mlbl">Theoretical</span><span class="mval" style="color:var(--c4)">43% ← highest</span></div>
+          <div class="mrow"><span class="mlbl">Procedural</span><span class="mval" style="color:var(--teal)">28% ← lowest</span></div>
+          <div class="mrow"><span class="mlbl">Bug rate</span><span class="mval">9%</span></div>
+          <div class="mrow"><span class="mlbl">Complexity</span><span class="mval" style="color:var(--c4)">★★★★★</span></div>
+          <div class="mrow"><span class="mlbl">Frontier</span><span class="mval" style="font-size:11px;color:var(--c4)">BC conceptualisation</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="sn">§03</span><h2>The Complexity Gradient — Visual Proof of the Core Law</h2></div>
+    <div class="grad-section">
+      <div class="gs-title">Four key dimensions measured across all four models</div>
+      <div class="gs-prop">
+        <div class="gs-label">🔬 Theoretical Issue % — <em style="color:var(--gold);font-style:normal">The Complexity Proxy</em></div>
+        <div class="gs-bars">
+          <div class="gs-row"><span class="gs-model" style="color:var(--c4)">MODFLOW</span><div class="gs-track"><div class="gs-fill" style="width:86%;background:linear-gradient(90deg,var(--c4),#a5b4fc)"><span class="gs-pct">43%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c3)">SWAT-MF</span><div class="gs-track"><div class="gs-fill" style="width:46%;background:linear-gradient(90deg,var(--c3),#f9a8d4)"><span class="gs-pct">23%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c2)">SWAT+</span><div class="gs-track"><div class="gs-fill" style="width:42%;background:linear-gradient(90deg,var(--c2),#93c5fd)"><span class="gs-pct">21%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c1)">SWAT 2012</span><div class="gs-track"><div class="gs-fill" style="width:36%;background:linear-gradient(90deg,var(--c1),#86efac)"><span class="gs-pct">18%</span></div></div></div>
+        </div>
+        <div class="gs-note">Perfect monotonic gradient across 4 models: MODFLOW &gt; SWAT-MF &gt; SWAT+ &gt; SWAT2012. Maps directly to scientific domain: pure physics solver → coupled → new land model → mature land model.</div>
+      </div>
+      <div class="gs-prop">
+        <div class="gs-label">⚙️ Procedural % — Inverse of Theoretical (documentation converts theory → procedure)</div>
+        <div class="gs-bars">
+          <div class="gs-row"><span class="gs-model" style="color:var(--c1)">SWAT 2012</span><div class="gs-track"><div class="gs-fill" style="width:100%;background:linear-gradient(90deg,#1d4ed8,var(--c2))"><span class="gs-pct">55%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c3)">SWAT-MF</span><div class="gs-track"><div class="gs-fill" style="width:94%;background:linear-gradient(90deg,#1d4ed8,var(--c2))"><span class="gs-pct">52%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c2)">SWAT+</span><div class="gs-track"><div class="gs-fill" style="width:87%;background:linear-gradient(90deg,#1d4ed8,var(--c2))"><span class="gs-pct">48%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c4)">MODFLOW</span><div class="gs-track"><div class="gs-fill" style="width:51%;background:linear-gradient(90deg,#1d4ed8,var(--c2))"><span class="gs-pct">28%</span></div></div></div>
+        </div>
+        <div class="gs-note">Perfect inverse gradient. SWAT2012's 30-year documentation converts theoretical questions into procedural ones. MODFLOW's physics domain resists documentation — BC conceptualisation cannot be documented away.</div>
+      </div>
+      <div class="gs-prop">
+        <div class="gs-label">🐛 Bug Rate % — Platform Youth × Interface Complexity</div>
+        <div class="gs-bars">
+          <div class="gs-row"><span class="gs-model" style="color:var(--c2)">SWAT+</span><div class="gs-track"><div class="gs-fill" style="width:100%;background:linear-gradient(90deg,#b91c1c,var(--red))"><span class="gs-pct">12%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c4)">MODFLOW</span><div class="gs-track"><div class="gs-fill" style="width:75%;background:linear-gradient(90deg,#b91c1c,var(--red))"><span class="gs-pct">9%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c1)">SWAT 2012</span><div class="gs-track"><div class="gs-fill" style="width:67%;background:linear-gradient(90deg,#b91c1c,var(--red))"><span class="gs-pct">8%</span></div></div></div>
+          <div class="gs-row"><span class="gs-model" style="color:var(--c3)">SWAT-MF</span><div class="gs-track"><div class="gs-fill" style="width:58%;background:linear-gradient(90deg,#b91c1c,var(--red))"><span class="gs-pct">7%</span></div></div></div>
+        </div>
+        <div class="gs-note">SWAT+ highest: newest platform + 3 interface tools = most integration surface area. SWAT-MF lowest: single GUI + highly focused developer support from Dr. Park.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="sn">§04</span><h2>The Core Scientific Claim</h2></div>
+    <div class="prop-box">
+      <div class="prop-label">Core Proposition · Serrano (2026)</div>
+      <p class="prop-quote">"The proportion of Theoretical issues in a scientific model's user community is a quantifiable, monotonic proxy for the scientific complexity frontier of that model — the boundary between what users can resolve through documentation and what requires original scientific investigation. This proportion decreases as model documentation matures, and increases as model domain complexity grows. Identifying the model-specific theoretical frontier defines the natural boundary of a research contribution."</p>
+      <div class="prop-evidence">
+        <div class="pe"><div class="pe-num" style="color:var(--c4)">43%</div><div class="pe-lbl">MODFLOW · Pure GW solver</div></div>
+        <div class="pe"><div class="pe-num" style="color:var(--c3)">23%</div><div class="pe-lbl">SWAT-MF · Coupled model</div></div>
+        <div class="pe"><div class="pe-num" style="color:var(--c2)">21%</div><div class="pe-lbl">SWAT+ · New land model</div></div>
+        <div class="pe"><div class="pe-num" style="color:var(--c1)">18%</div><div class="pe-lbl">SWAT2012 · Mature model</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="sn">§05</span><h2>Unique Complexity Frontiers Per Model</h2></div>
+    <div class="ft-wrap">
+      <table class="ftbl">
+        <thead>
+          <tr><th>T-CAT</th><th>Universal Name</th>
+          <th style="color:var(--c1)">SWAT 2012</th>
+          <th style="color:var(--c2)">SWAT+</th>
+          <th style="color:var(--c3)">SWAT-MF</th>
+          <th style="color:var(--c4)">MODFLOW</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="tcat">T-01</td><td>Spatial Setup</td><td class="c1t">★★★★★ 1,045</td><td class="c2t">★★★★ 145</td><td class="c3t">★★ 80</td><td class="nat">Low</td></tr>
+          <tr><td class="tcat">T-02</td><td>Model Coupling</td><td class="nat">N/A</td><td class="nat">N/A</td><td class="c3t">★★★★★ 120 🔥</td><td class="nat">N/A</td></tr>
+          <tr><td class="tcat">T-03</td><td>Input Data</td><td class="c1t">★★★★★ 880</td><td class="c2t">★★★ 70</td><td class="c3t">★★ 33</td><td class="c4t">★★★ Med</td></tr>
+          <tr><td class="tcat">T-04</td><td>Management</td><td class="c1t">★★ 155</td><td class="c2t">★★★★ 84 🔥</td><td class="c3t">★ 17</td><td class="nat">N/A</td></tr>
+          <tr><td class="tcat">T-05</td><td>Runtime Crashes</td><td class="c1t">★★★★ 740</td><td class="c2t">★★★★ 120</td><td class="c3t">★★★★ 82</td><td class="c4t">★★★ Med</td></tr>
+          <tr><td class="tcat">T-06</td><td>Solver / Convergence</td><td class="nat">N/A</td><td class="nat">N/A</td><td class="c3t">★★★★ 95</td><td class="c4t">★★★★★ 570 🔥</td></tr>
+          <tr><td class="tcat">T-08</td><td>Core Process Exchange</td><td class="nat">—</td><td class="nat">—</td><td class="c3t">★★★★ 68 🔥</td><td class="c4t">★★★★★ 490 🔥</td></tr>
+          <tr><td class="tcat">T-09</td><td>Calibration</td><td class="c1t">★★★★ 620</td><td class="c2t">★★★★ 104</td><td class="c3t">★★★ 53</td><td class="c4t">★★★★ 400</td></tr>
+          <tr><td class="tcat">T-10</td><td>Output Interpretation</td><td class="c1t">★★★★ 500</td><td class="c2t">★★★ 55</td><td class="nat">Low</td><td class="c4t">★★★ 200</td></tr>
+          <tr><td class="tcat">T-11</td><td>GUI Bugs</td><td class="c1t">★★★ 275</td><td class="c2t">★★★ 44</td><td class="c3t">★★ 41</td><td class="c4t">★★★ 140</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:-30px;margin-bottom:40px">🔥 = Model-specific complexity frontier where research contributions must be made</p>
+  </section>
+
+  <section>
+    <div class="sh"><span class="sn">§06</span><h2>Hypothesis Tests — All Four Models</h2></div>
+    <div class="hgrid">
+      <div class="hcard">
+        <div class="hid">H1 — Procedural Majority</div><span class="hstatus part">Refined</span>
+        <p class="htext">Confirmed for SWAT family (48–55%) but NOT MODFLOW (28%). Procedural dominance is characteristic of management/interface-oriented models, not pure physics solvers. The distinction is domain type, not model age.</p>
+        <div class="hev">4-model evidence: domain type predicts procedural/theoretical ratio more than age.</div>
+      </div>
+      <div class="hcard">
+        <div class="hid">H2 — Bug Rate vs Platform Youth</div><span class="hstatus conf">Confirmed</span>
+        <p class="htext">SWAT+ highest (12%) = newest + most interface integration points. SWAT-MF lowest (7%) = single-interface + focused developer support. Pattern holds across all 4 models.</p>
+        <div class="hev">Platform youth + interface complexity → higher bug rate. Confirmed.</div>
+      </div>
+      <div class="hcard">
+        <div class="hid">H3 — Calibration Depth by Domain</div><span class="hstatus conf">Confirmed</span>
+        <p class="htext">MODFLOW calibration (PEST, pilot points) is qualitatively deeper than SWAT-family calibration (SWAT-CUP file formats, copy-back). Nature of T-09 issues differs: MODFLOW = theoretical; SWAT = procedural + theoretical.</p>
+        <div class="hev">4-model T-09 analysis confirms domain-dependent calibration depth.</div>
+      </div>
+      <div class="hcard">
+        <div class="hid">H4 — T-CAT κ ≥ 0.75</div><span class="hstatus pend">Pending Formal Test</span>
+        <p class="htext">Automated classification rate &gt;90% across ~9,500 threads. Formal inter-coder reliability (Cohen's κ) with a second independent coder is pending for the manuscript.</p>
+        <div class="hev">Preliminary automated tests across 4 communities show &gt;90% classification rate.</div>
+      </div>
+      <div class="hcard">
+        <div class="hid">H5 — Theoretical% Complexity Proxy</div><span class="hstatus conf">Confirmed (4 models)</span>
+        <p class="htext">MODFLOW (43%) > SWAT-MF (23%) > SWAT+ (21%) > SWAT2012 (18%) — perfect monotonic gradient confirmed with addition of SWAT2012. No counter-example found across all four models and ~9,500 threads.</p>
+        <div class="hev">Four-model gradient confirmed. Proposed as a general empirical law.</div>
+      </div>
+      <div class="hcard">
+        <div class="hid">H6 — Model-Specific Frontiers</div><span class="hstatus conf">Confirmed (4 models)</span>
+        <p class="htext">Four distinct frontiers: SWAT2012 (sediment/nutrients), SWAT+ (decision tables), SWAT-MF (SW-GW exchange), MODFLOW (BC conceptualisation). Non-overlapping, model-specific, and each scientifically distinctive.</p>
+        <div class="hev">Each frontier maps to a specific T-CAT at HIGH frequency × HIGH theoretical rate.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><span class="sn">§07</span><h2>Six Original Contributions</h2></div>
+    <div class="cgrid">
+      <div class="cbox"><div class="cnum">01</div><div class="ctit">Universal T-CAT Taxonomy</div>
+        <p class="cdesc">12-category, 6-domain taxonomy validated across 4 models and ~9,500 threads. First cross-model taxonomy for hydrological model user issues.</p></div>
+      <div class="cbox"><div class="cnum">02</div><div class="ctit">Four-Way Nature Classification</div>
+        <p class="cdesc">Procedural / Theoretical / Config / Bug — with explicit, auditable decision rules. Enables quantitative comparison of any model community.</p></div>
+      <div class="cbox"><div class="cnum">03</div><div class="ctit">Theoretical% Complexity Law</div>
+        <p class="cdesc">Monotonic gradient confirmed across 4 models. Theoretical issue proportion is a quantifiable proxy for scientific complexity domain. Proposed as a general empirical law.</p></div>
+      <div class="cbox"><div class="cnum">04</div><div class="ctit">Complexity Frontier Concept</div>
+        <p class="cdesc">Each model has a unique frontier — the boundary between documentable knowledge and research gaps. Locating this frontier defines a PhD contribution's natural scope.</p></div>
+      <div class="cbox"><div class="cnum">05</div><div class="ctit">Diagnostic Algorithm</div>
+        <p class="cdesc">6-block systematic problem triage for SWAT-MF and SWAT+, derived from 9,500+ thread patterns. Reduces community support burden.</p></div>
+      <div class="cbox"><div class="cnum">06</div><div class="ctit">Reproducible Python Pipeline</div>
+        <p class="cdesc">Open-source coding pipeline (taxonomy.py + 02_code.py) enabling longitudinal monitoring and application to any new scientific model community.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="ft">David Serrano · PhD Research · Advisor: Dr. Seonggyu Park (OSU) · April 2026 · 4-model edition · Pre-publication priority document</div>
+    <div class="ftag">github.com/[your-handle]/swat-issue-atlas</div>
+  </footer>
+</div>
+</body>
+</html>

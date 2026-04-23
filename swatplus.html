@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWAT+ Community Issue Analysis — David Serrano</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #07100d;
+    --surface:  #0c1a15;
+    --surface2: #112118;
+    --border:   #1a3328;
+    --accent:   #22c55e;
+    --accent2:  #4ade80;
+    --amber:    #f59e0b;
+    --red:      #ef4444;
+    --blue:     #38bdf8;
+    --purple:   #a78bfa;
+    --pink:     #f472b6;
+    --teal:     #2dd4bf;
+    --text:     #e2f0e8;
+    --mid:      #7fa68a;
+    --dim:      #3d6b50;
+    --mono:     'DM Mono', monospace;
+    --sans:     'DM Sans', sans-serif;
+    --display:  'Syne', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* Subtle dot grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(rgba(34,197,94,0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 36px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+
+  .hd-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent);
+    background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.22);
+    padding: 4px 12px; border-radius: 100px; margin-bottom: 16px;
+  }
+
+  .hd-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(28px, 5vw, 50px);
+    font-weight: 800; line-height: 1.05;
+    color: #fff; margin-bottom: 14px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .hd-sub {
+    color: var(--mid); font-size: 14px; font-weight: 300;
+    font-style: italic; max-width: 680px;
+  }
+
+  .hd-meta {
+    margin-top: 18px; display: flex; gap: 20px; flex-wrap: wrap;
+    font-family: var(--mono); font-size: 11px; color: var(--dim);
+  }
+
+  .hd-meta b { color: var(--mid); font-weight: 500; }
+
+  /* ── STAT BAR ── */
+  .statbar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; margin-bottom: 40px;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 18px 20px;
+  }
+
+  .sv {
+    font-family: var(--mono); font-size: 30px; font-weight: 500;
+    line-height: 1; margin-bottom: 4px;
+  }
+
+  .sl {
+    font-family: var(--mono); font-size: 10px; color: var(--dim);
+    text-transform: uppercase; letter-spacing: .1em;
+  }
+
+  /* ── SECTION ── */
+  section { margin-bottom: 52px; }
+
+  .sh {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .sn {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2);
+    padding: 2px 9px; border-radius: 3px; letter-spacing: .08em;
+  }
+
+  h2 { font-family: var(--display); font-size: 19px; color: #fff; }
+
+  /* ── COMPARISON BANNER ── */
+  .compare-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .compare-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 24px;
+  }
+
+  .cc-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+
+  .cc-model { font-family: var(--display); font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+
+  .cc-desc { font-size: 13px; color: var(--mid); line-height: 1.55; }
+
+  .cc-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+
+  .chip {
+    font-family: var(--mono); font-size: 10px; padding: 3px 8px;
+    border-radius: 100px; text-transform: uppercase; letter-spacing: .05em;
+  }
+
+  .chip-g { background: rgba(34,197,94,.12); color: var(--accent); border: 1px solid rgba(34,197,94,.25); }
+  .chip-b { background: rgba(56,189,248,.12); color: var(--blue); border: 1px solid rgba(56,189,248,.25); }
+
+  /* ── FREQ CHART ── */
+  .freq-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 24px 26px; margin-bottom: 40px;
+  }
+
+  .bar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 11px; }
+
+  .br-label {
+    font-family: var(--mono); font-size: 11px; color: var(--mid);
+    width: 250px; flex-shrink: 0; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .br-track {
+    flex: 1; height: 22px; background: var(--surface2);
+    border-radius: 4px; overflow: hidden;
+  }
+
+  .br-fill {
+    height: 100%; border-radius: 4px;
+    display: flex; align-items: center;
+    padding-right: 10px; justify-content: flex-end;
+  }
+
+  .br-val {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    color: rgba(255,255,255,.85);
+  }
+
+  /* ── TYPE GRID ── */
+  .type-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px; margin-bottom: 40px;
+  }
+
+  .type-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px; text-align: center;
+  }
+
+  .ti { font-size: 26px; margin-bottom: 8px; }
+  .tn { font-family: var(--mono); font-size: 10px; color: var(--mid); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+  .tp { font-family: var(--display); font-size: 30px; font-weight: 800; margin-bottom: 3px; }
+  .tc { font-family: var(--mono); font-size: 10px; color: var(--dim); }
+
+  /* ── CATEGORY CARDS ── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .cat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+    animation: fadeUp .4s ease both;
+  }
+
+  .cat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  .cat-card:nth-child(1){animation-delay:.05s} .cat-card:nth-child(2){animation-delay:.10s}
+  .cat-card:nth-child(3){animation-delay:.15s} .cat-card:nth-child(4){animation-delay:.20s}
+  .cat-card:nth-child(5){animation-delay:.25s} .cat-card:nth-child(6){animation-delay:.30s}
+  .cat-card:nth-child(7){animation-delay:.35s} .cat-card:nth-child(8){animation-delay:.40s}
+  .cat-card:nth-child(9){animation-delay:.45s}
+
+  .ch {
+    padding: 15px 18px 11px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 11px;
+  }
+
+  .cicon {
+    width: 32px; height: 32px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+
+  .ctitle { flex: 1; min-width: 0; }
+  .cid { font-family: var(--mono); font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+  .cname { font-family: var(--display); font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
+
+  .cbadges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+
+  .badge {
+    font-family: var(--mono); font-size: 10px; padding: 2px 7px;
+    border-radius: 3px; text-transform: uppercase; letter-spacing: .05em;
+  }
+
+  .bp { background:rgba(56,189,248,.12); color:var(--blue); border:1px solid rgba(56,189,248,.25); }
+  .bt { background:rgba(167,139,250,.12); color:var(--purple); border:1px solid rgba(167,139,250,.25); }
+  .bc { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.25); }
+  .bb { background:rgba(239,68,68,.12); color:var(--red); border:1px solid rgba(239,68,68,.25); }
+  .bi { background:rgba(45,212,191,.12); color:var(--teal); border:1px solid rgba(45,212,191,.25); }
+
+  .cfreq { flex-shrink: 0; text-align: right; }
+  .cfn { font-family: var(--mono); font-size: 20px; font-weight: 500; color: #fff; line-height: 1; }
+  .cfl { font-family: var(--mono); font-size: 9px; color: var(--dim); text-transform: uppercase; }
+
+  .cb { padding: 14px 18px 16px; }
+  .cdesc { font-size: 13px; color: var(--mid); line-height: 1.55; margin-bottom: 11px; }
+  .ex-label { font-family: var(--mono); font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 5px; }
+
+  .ex-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .ex-list li { font-size: 12px; color: var(--mid); padding-left: 13px; position: relative; }
+  .ex-list li::before { content:'›'; position:absolute; left:0; color:var(--dim); }
+
+  .csol {
+    margin-top: 11px; padding: 10px 12px;
+    background: rgba(34,197,94,.05);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .csol-lbl { font-family: var(--mono); font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+  .csol-txt { font-size: 12px; color: var(--mid); line-height: 1.5; }
+
+  /* ── DIFF TABLE ── */
+  .diff-table-wrap {
+    overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 40px;
+  }
+
+  .diff-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+  .diff-table th {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--dim); text-align: left;
+    padding: 11px 14px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .diff-table td {
+    padding: 10px 14px; border-bottom: 1px solid rgba(26,51,40,.5);
+    color: var(--mid); vertical-align: top;
+  }
+
+  .diff-table tr:hover td { background: rgba(34,197,94,.03); }
+  .diff-table .code { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .ph { color: var(--red); font-family: var(--mono); font-size: 11px; font-weight: 500; }
+  .pm { color: var(--amber); font-family: var(--mono); font-size: 11px; font-weight: 500; }
+  .pl { color: var(--accent); font-family: var(--mono); font-size: 11px; font-weight: 500; }
+  .pn { color: var(--blue); font-family: var(--mono); font-size: 11px; font-weight: 500; }
+
+  /* ── PAPER BOX ── */
+  .paper-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 26px 30px;
+  }
+
+  .paper-title { font-family: var(--display); font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .paper-meta { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+
+  .ps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+
+  .ps {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 16px;
+  }
+
+  .ps-n { font-family: var(--mono); font-size: 10px; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+  .ps-t { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 5px; }
+  .ps-d { font-size: 12px; color: var(--dim); line-height: 1.5; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 22px 0; margin-top: 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+  }
+
+  .ft { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+  .ftag {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.22);
+    padding: 4px 10px; border-radius: 3px;
+  }
+
+  @media(max-width:640px){
+    .compare-grid{grid-template-columns:1fr}
+    .br-label{width:130px; font-size:10px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="hd-tag"><span class="hd-dot"></span>PhD Research · Pre-publication</div>
+    <h1>Systematic Issue Analysis:<br><span>SWAT+</span> Google Group</h1>
+    <p class="hd-sub">Scientific classification of recurring user problems across the SWAT+ community groups (swatplus, swatplus-editor, qswatplus) — with comparison to SWAT-MODFLOW findings.</p>
+    <div class="hd-meta">
+      <span><b>Author:</b> David Serrano</span>
+      <span><b>Advisor:</b> Dr. Seonggyu Park (OSU)</span>
+      <span><b>Date:</b> April 2026</span>
+      <span><b>Sources:</b> ~600+ threads across 3 Google Groups</span>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="statbar">
+    <div class="stat"><div class="sv" style="color:var(--accent)">600+</div><div class="sl">Total Threads</div></div>
+    <div class="stat"><div class="sv" style="color:var(--blue)">9</div><div class="sl">Issue Categories</div></div>
+    <div class="stat"><div class="sv" style="color:var(--blue)">48%</div><div class="sl">Procedural</div></div>
+    <div class="stat"><div class="sv" style="color:var(--purple)">21%</div><div class="sl">Theoretical</div></div>
+    <div class="stat"><div class="sv" style="color:var(--amber)">19%</div><div class="sl">Config / File</div></div>
+    <div class="stat"><div class="sv" style="color:var(--red)">12%</div><div class="sl">Software Bug</div></div>
+    <div class="stat"><div class="sv" style="color:var(--teal)">3</div><div class="sl">Google Groups</div></div>
+  </div>
+
+  <!-- SECTION: CONTEXT -->
+  <section>
+    <div class="sh"><span class="sn">§01</span><h2>Context — SWAT+ vs SWAT-MODFLOW</h2></div>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="cc-label" style="color:var(--accent)">This Analysis</div>
+        <div class="cc-model">SWAT+</div>
+        <p class="cc-desc">Complete rewrite of SWAT (2017—). New spatial framework with LSUs, landscape units, and decision tables. New input file architecture (SQLite + .txt). Multiple interfaces: QSWAT+, SWAT+ Editor, SWAT+ Toolbox. Three active Google Groups with 600+ threads.</p>
+        <div class="cc-chips">
+          <span class="chip chip-g">QSWAT+ (QGIS)</span>
+          <span class="chip chip-g">SWAT+ Editor</span>
+          <span class="chip chip-g">SWAT+ Toolbox</span>
+          <span class="chip chip-g">pySWATPlus</span>
+          <span class="chip chip-g">Decision Tables</span>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="cc-label" style="color:var(--blue)">Previous Analysis</div>
+        <div class="cc-model">SWAT-MODFLOW</div>
+        <p class="cc-desc">Coupled surface-groundwater model. SWAT2012 + MODFLOW-NWT linked via QSWATMOD2. Focus on SW-GW exchange and recharge transfer. 409 threads in single Google Group. Advisor Dr. Park is lead developer.</p>
+        <div class="cc-chips">
+          <span class="chip chip-b">QSWATMOD2</span>
+          <span class="chip chip-b">MODFLOW-NWT</span>
+          <span class="chip chip-b">SW-GW Exchange</span>
+          <span class="chip chip-b">409 threads</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: FREQUENCY -->
+  <section>
+    <div class="sh"><span class="sn">§02</span><h2>Frequency Analysis — SWAT+ Issue Distribution</h2></div>
+    <div class="freq-wrap">
+      <div class="bar-row">
+        <div class="br-label">Watershed Setup & HRU Delineation</div>
+        <div class="br-track"><div class="br-fill" style="width:91%;background:linear-gradient(90deg,#22c55e,#4ade80)"><span class="br-val">~145 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">Runtime Errors & Crashes</div>
+        <div class="br-track"><div class="br-fill" style="width:76%;background:linear-gradient(90deg,#ef4444,#f97316)"><span class="br-val">~120 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">Calibration & Sensitivity Analysis</div>
+        <div class="br-track"><div class="br-fill" style="width:65%;background:linear-gradient(90deg,#a78bfa,#818cf8)"><span class="br-val">~104 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">Management & Decision Tables</div>
+        <div class="br-track"><div class="br-fill" style="width:53%;background:linear-gradient(90deg,#f59e0b,#eab308)"><span class="br-val">~84 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">Soil, Climate & Input Data Errors</div>
+        <div class="br-track"><div class="br-fill" style="width:44%;background:linear-gradient(90deg,#38bdf8,#60a5fa)"><span class="br-val">~70 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">Output Interpretation & Water Balance</div>
+        <div class="br-track"><div class="br-fill" style="width:34%;background:linear-gradient(90deg,#2dd4bf,#34d399)"><span class="br-val">~55 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">SWAT+ Editor / Toolbox GUI Bugs</div>
+        <div class="br-track"><div class="br-fill" style="width:28%;background:linear-gradient(90deg,#f472b6,#e879f9)"><span class="br-val">~44 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">Reservoir, Wetland & Water Bodies</div>
+        <div class="br-track"><div class="br-fill" style="width:20%;background:linear-gradient(90deg,#818cf8,#a78bfa)"><span class="br-val">~31 threads</span></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="br-label">Advanced: gwflow, Nutrients, Pathogens</div>
+        <div class="br-track"><div class="br-fill" style="width:12%;background:linear-gradient(90deg,#4b5563,#6b7280)"><span class="br-val">~19 threads</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: TYPE -->
+  <section>
+    <div class="sh"><span class="sn">§03</span><h2>Classification by Nature</h2></div>
+    <div class="type-row">
+      <div class="type-card"><div class="ti">⚙️</div><div class="tn">Procedural</div><div class="tp" style="color:var(--blue)">48%</div><div class="tc">~288 threads</div></div>
+      <div class="type-card"><div class="ti">🔬</div><div class="tn">Theoretical</div><div class="tp" style="color:var(--purple)">21%</div><div class="tc">~126 threads</div></div>
+      <div class="type-card"><div class="ti">📁</div><div class="tn">Config / File</div><div class="tp" style="color:var(--amber)">19%</div><div class="tc">~114 threads</div></div>
+      <div class="type-card"><div class="ti">🐛</div><div class="tn">Software Bug</div><div class="tp" style="color:var(--red)">12%</div><div class="tc">~72 threads</div></div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 22px;">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">Key Observation — Higher Bug Rate Than SWAT-MODFLOW</div>
+      <p style="color:var(--mid);font-size:13px;line-height:1.65">
+        SWAT+ shows a notably <strong style="color:#fff">higher software bug rate (12% vs 7%)</strong> than SWAT-MODFLOW, consistent with the model being a more recent and still-maturing software platform. The three-component ecosystem (QSWAT+, SWAT+ Editor, SWAT+ Toolbox) introduces more integration points where bugs can emerge between versions. The <strong style="color:#fff">swatplus_datasets.sqlite</strong> has been a recurring source of cross-platform bugs. This is a key structural difference for the comparative paper.
+      </p>
+    </div>
+  </section>
+
+  <!-- SECTION: CATALOG -->
+  <section>
+    <div class="sh"><span class="sn">§04</span><h2>Issue Catalog — 9 Primary Categories</h2></div>
+    <div class="cat-grid">
+
+      <!-- C1 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(34,197,94,.15)">🗺️</div>
+          <div class="ctitle">
+            <div class="cid">CAT-01 · Most Frequent</div>
+            <div class="cname">Watershed Setup & HRU Delineation</div>
+            <div class="cbadges"><span class="badge bp">Procedural</span><span class="badge bc">Config</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--accent)">145</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">Problems in QSWAT+ Steps 1–3: DEM delineation, stream network creation, HRU definition from land use / soil / slope rasters. Includes projection mismatches, soil coverage below 95% threshold, missing MUKEY fields, and landscape unit creation failures.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>Soil coverage &lt;95% — QSWAT+ refuses to continue</li>
+            <li>MUKEY field is string instead of integer → HRU failure</li>
+            <li>"Create landscape" error — File C:/ path not found</li>
+            <li>HRU count mismatch between QSWAT+ Step 2 and SWAT+ Editor import</li>
+            <li>Projection of rasters not matching DEM → empty HRUs</li>
+            <li>STUCK IN STEP 3 — peewee.py traceback on routing unit</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Pre-processing checklist: verify all rasters share the same CRS as DEM; ensure MUKEY is integer; clip soil to watershed + 5% buffer; validate coverage ≥ 95% before HRU creation. Publish a spatial data preparation SOP for QSWAT+.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C2 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(239,68,68,.15)">💥</div>
+          <div class="ctitle">
+            <div class="cid">CAT-02 · High Frequency</div>
+            <div class="cname">Runtime Errors & Model Crashes</div>
+            <div class="cbadges"><span class="badge bb">Bug</span><span class="badge bp">Procedural</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--red)">120</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">The SWAT+ executable crashes during or before the simulation. Causes include malformed input files, floating overflow errors (especially in nutrient/nitrogen routines), reservoir parameter errors, and incompatible model revision vs. input file version.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>Floating overflow error — often triggered by soil data problems (NaN in N cycling)</li>
+            <li>Reservoir initialization parameters → runtime failure</li>
+            <li>HYDROGRAPH_MODULE / SD_CHANNEL error in rev. 61.0.1</li>
+            <li>Pathogen error: "Attempt to fetch from allocatable variable LY"</li>
+            <li>channel_sdmorph_day.txt does not exist (missing output file)</li>
+            <li>pySWATPlus: Rout_unit_ele DoesNotExist — peewee ORM failure</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Implement a model-revision compatibility matrix in SWAT+ Editor. Add pre-run input validation for required tables in SQLite database. Publish known floating-overflow triggers (soil NaN, zero field capacity) with diagnostic steps in the official FAQ.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C3 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(167,139,250,.15)">📊</div>
+          <div class="ctitle">
+            <div class="cid">CAT-03 · Research Priority</div>
+            <div class="cname">Calibration & Sensitivity Analysis</div>
+            <div class="cbadges"><span class="badge bt">Theoretical</span><span class="badge bp">Procedural</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--purple)">104</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">How to calibrate SWAT+ using SWAT+ Toolbox, SWATplus-CUP, IPEAT+, or R-SWAT. Covers parameter selection, multi-site calibration, "freezing" calibrated parameters before moving downstream, and interpreting NSE/PBIAS/KGE statistics. A major research opportunity.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>Nash number varying even for fixed-parameter regions</li>
+            <li>How to "freeze" calibrated parameters in SWAT+ Toolbox</li>
+            <li>par_sample.stb not found — Toolbox sensitivity analysis</li>
+            <li>Decimal separator "," vs "." causes calibration to fail (locale issue)</li>
+            <li>Nutrient calibration after hydrology — correct sequence unclear</li>
+            <li>GLUE method soil_k editing with Python/code</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Document a standard sequential calibration protocol: (1) water balance, (2) streamflow, (3) sediment, (4) nutrients. Compare SWAT+ Toolbox vs SWATplus-CUP vs R-SWAT performance. Publish parameter sensitivity tables specific to SWAT+ architecture (not inherited from SWAT2012).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C4 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(245,158,11,.15)">🌾</div>
+          <div class="ctitle">
+            <div class="cid">CAT-04 · New in SWAT+</div>
+            <div class="cname">Management Schedules & Decision Tables</div>
+            <div class="cbadges"><span class="badge bt">Theoretical</span><span class="badge bc">Config</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--amber)">84</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">Decision tables — the major paradigm shift in SWAT+ — are deeply misunderstood. Users struggle with condition/action syntax, irrigation trigger logic, land use change implementation, and the interaction between auto-schedules and operation schedules. No equivalent in SWAT2012.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>Decision table not working — conditions never triggered</li>
+            <li>Management schedule causes runtime error (SWAT+ error in mgt schedule)</li>
+            <li>Irrigation from two water sources with one decision table</li>
+            <li>Irrigation time interval option missing in SWAT+ Editor UI</li>
+            <li>LULCC (land use change) via decision tables — SWAT+ v2.0.4 bug</li>
+            <li>Testing management match — whatever condition is set, no action fires</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Create a decision table cookbook with 10+ common scenarios (irrigation thresholds, harvest timing, LULCC triggers). Add a decision table debugger/tester in SWAT+ Editor that shows which conditions are being evaluated per timestep. This is a strong PhD publication topic.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C5 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(56,189,248,.15)">🗄️</div>
+          <div class="ctitle">
+            <div class="cid">CAT-05 · Data Issues</div>
+            <div class="cname">Soil, Climate & Input Data Errors</div>
+            <div class="cbadges"><span class="badge bc">Config</span><span class="badge bp">Procedural</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--blue)">70</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">Errors caused by incorrect or incomplete input datasets: missing soil series in the SSURGO database, misformatted climate files, incorrect soil hydraulic properties (field capacity, saturated K), and weather generator parameter problems.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>Missing soils in SWAT+ SSURGO database — MUKEY not found</li>
+            <li>soils.sol problem — field capacity or saturated K = 0 → NaN crash</li>
+            <li>Decimal format error in climate files → flat zero precipitation output</li>
+            <li>SWAT+ datasets.sqlite missing default values for new WETW land use</li>
+            <li>usersoil table not linking to QSWAT+ project properly</li>
+            <li>Soil coverage 91% → must be ≥95% to proceed</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Build a SWAT+ Input Data Validator: check soil property ranges, climate file format (UTF-8, decimal separator), MUKEY integer type, SSURGO coverage. Maintain an updated swatplus_datasets.sqlite with changelogs. Publish a data preparation guide with country-specific soil database tips.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C6 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(45,212,191,.15)">📈</div>
+          <div class="ctitle">
+            <div class="cid">CAT-06 · Scientific Gap</div>
+            <div class="cname">Output Interpretation & Water Balance</div>
+            <div class="cbadges"><span class="badge bt">Theoretical</span><span class="badge bi">Interpretation</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--teal)">55</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">Users misinterpret SWAT+ output files: basin_wb_aa vs basin_wb_yr averaging differences, sediment delivery ratios, in-stream water quality variables, ET computation, and SWAT+ Check requirements. The new file structure (replacing SWAT2012 output.std etc.) adds confusion.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>basin_wb_aa value ≠ average of basin_wb_yr — confused by print period</li>
+            <li>SWAT+ Check fails: "basin_nb_aa does not exist" — print options not set</li>
+            <li>Excessive sediment delivery ratio in some channels</li>
+            <li>In-stream nutrient routing results inconsistent after parameter changes</li>
+            <li>Output CSV files empty after Toolbox run — analyze output step skipped</li>
+            <li>ET values in output.std differ from expected basin estimates</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Publish an Output Variables Guide that maps SWAT2012 output files to SWAT+ equivalents. Document print period vs averaging rules for _aa files. Add a "required print settings" checklist to SWAT+ Editor before running SWAT+ Check.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C7 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(244,114,182,.15)">🖥️</div>
+          <div class="ctitle">
+            <div class="cid">CAT-07 · Software Issues</div>
+            <div class="cname">SWAT+ Editor / Toolbox / QSWAT+ GUI Bugs</div>
+            <div class="cbadges"><span class="badge bb">Bug</span><span class="badge bp">Procedural</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--pink)">44</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">Errors within the software interfaces themselves. The three-tool ecosystem (QSWAT+, SWAT+ Editor, SWAT+ Toolbox) creates compatibility challenges between versions. SQLite database schema changes between releases cause cascading failures.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>swatplus_datasets.sqlite missing WETW default values (v2.0.3 hotfix)</li>
+            <li>SWAT+ Toolbox crashes on launch / disappears on project load</li>
+            <li>Editor v3.0.1 still shows HYDROGRAPH_MODULE error with rev. 61.0.1</li>
+            <li>gwflow components not visible in QSWAT+ visualization (Step 4)</li>
+            <li>SWAT+ Check cannot load: table "basin_nb_aa" missing</li>
+            <li>Writing input files fails — routing unit table not found (peewee ORM)</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Maintain a versioned compatibility matrix (QSWAT+ × Editor × Toolbox × model revision). Use semantic versioning for SQLite schema changes with migration scripts. Track GUI bugs in a public GitHub Issues tracker (already exists at github.com/swat-model).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C8 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(129,140,248,.15)">🌊</div>
+          <div class="ctitle">
+            <div class="cid">CAT-08 · Often Overlooked</div>
+            <div class="cname">Reservoirs, Wetlands & Water Bodies</div>
+            <div class="cbadges"><span class="badge bt">Theoretical</span><span class="badge bc">Config</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:#818cf8)">31</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">Setting up reservoirs (lake shapefile vs. manual), ponds, wetlands and playas in SWAT+. The introduction of the WETW and WETM land uses in v2.0 added complexity. Users also struggle with reservoir initialization, volume-area relationships, and overflow routing.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>Reservoir initialization parameters → runtime error</li>
+            <li>HRUs inside lake shapefile incorrectly assigned</li>
+            <li>Ponds and swales — reservoir vs. pond object type confusion</li>
+            <li>WETW land use missing from swatplus_datasets.sqlite (v2.0 bug)</li>
+            <li>Reservoir volume-area relationship initialization unclear</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Provide a worked example for each water body type (reservoir, pond, wetland, playa). Clarify lake shapefile → reservoir mapping rules in QSWAT+ documentation. Document WETW initialization workflow after the v2.0.3 dataset fix.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- C9 -->
+      <div class="cat-card">
+        <div class="ch">
+          <div class="cicon" style="background:rgba(75,85,99,.25)">🧬</div>
+          <div class="ctitle">
+            <div class="cid">CAT-09 · Advanced</div>
+            <div class="cname">Advanced: gwflow, Nutrients, Pathogens, Sediment</div>
+            <div class="cbadges"><span class="badge bt">Theoretical</span><span class="badge bp">Procedural</span></div>
+          </div>
+          <div class="cfreq"><div class="cfn" style="color:var(--mid)">19</div><div class="cfl">threads</div></div>
+        </div>
+        <div class="cb">
+          <p class="cdesc">Less common but scientifically significant: gwflow module integration, in-stream nutrient and pathogen processes, sediment delivery in specific channel configurations, and sub-daily simulations. Emerging area as SWAT+ matures.</p>
+          <div class="ex-label">Recurring examples</div>
+          <ul class="ex-list">
+            <li>gwflow + SWAT+ Editor: wetland-GW exchange setting (on/off)</li>
+            <li>Pathogen error — allocatable variable LY fetch failure</li>
+            <li>In-stream nutrient flow/routing for channels — turn off water quality</li>
+            <li>Sediment production issue in QSWAT+ — parameters provided correctly</li>
+            <li>Sensitivity analysis of sediment yield after hydrology calibration</li>
+          </ul>
+          <div class="csol">
+            <div class="csol-lbl">Systematic Solution</div>
+            <p class="csol-txt">Develop gwflow integration tutorial for SWAT+ (standalone, not just SWAT-MODFLOW). Document the nutrient calibration sequence post-hydrology. Publish pathogen module parameter defaults and known edge cases.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION: COMPARISON TABLE -->
+  <section>
+    <div class="sh"><span class="sn">§05</span><h2>Comparative Analysis — SWAT+ vs SWAT-MODFLOW</h2></div>
+    <div class="diff-table-wrap">
+      <table class="diff-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>SWAT+</th>
+            <th>SWAT-MODFLOW</th>
+            <th>Implication</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="code">Thread volume</td>
+            <td>~600+ (3 groups)</td>
+            <td>~409 (1 group)</td>
+            <td style="color:var(--mid)">SWAT+ has larger, more fragmented community</td>
+          </tr>
+          <tr>
+            <td class="code">Top issue</td>
+            <td>HRU delineation (24%)</td>
+            <td>Model linking (29%)</td>
+            <td style="color:var(--mid)">Both bottleneck at model setup stage</td>
+          </tr>
+          <tr>
+            <td class="code">Bug rate</td>
+            <td class="ph">12%</td>
+            <td class="pl">7%</td>
+            <td style="color:var(--mid)">SWAT+ more actively developed → more bugs</td>
+          </tr>
+          <tr>
+            <td class="code">Theoretical issues</td>
+            <td class="pm">21%</td>
+            <td class="pm">23%</td>
+            <td style="color:var(--mid)">Similar proportion — comparable research opportunity</td>
+          </tr>
+          <tr>
+            <td class="code">Unique challenge</td>
+            <td>Decision tables (new paradigm)</td>
+            <td>SW-GW exchange calibration</td>
+            <td style="color:var(--mid)">Different theoretical gaps for PhD focus</td>
+          </tr>
+          <tr>
+            <td class="code">Interfaces</td>
+            <td>QSWAT+ + Editor + Toolbox</td>
+            <td>QSWATMOD2 only</td>
+            <td style="color:var(--mid)">More SWAT+ integration points → more GUI bugs</td>
+          </tr>
+          <tr>
+            <td class="code">Database</td>
+            <td>SQLite (swatplus_datasets.sqlite)</td>
+            <td>Text files (.mfn, .dis, .riv)</td>
+            <td style="color:var(--mid)">SQLite schema changes cause cascading errors in SWAT+</td>
+          </tr>
+          <tr>
+            <td class="code">Calibration tools</td>
+            <td>Toolbox, SWATplus-CUP, IPEAT+, R-SWAT</td>
+            <td>SWAT-CUP + manual</td>
+            <td style="color:var(--mid)">SWAT+ has more options but less consensus on best practice</td>
+          </tr>
+          <tr>
+            <td class="code">Paper target</td>
+            <td class="pn">Env. Modelling & Software</td>
+            <td class="pn">Env. Modelling & Software</td>
+            <td style="color:var(--mid)">Could be a joint comparative paper</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION: PAPER -->
+  <section>
+    <div class="sh"><span class="sn">§06</span><h2>Proposed Paper — SWAT+ Analysis</h2></div>
+    <div class="paper-box">
+      <div class="paper-title">A Systematic Classification of User-Reported Issues in SWAT+: Analysis of 600+ Community Threads and Implications for Model Development</div>
+      <div class="paper-meta">Target: Environmental Modelling & Software (Elsevier) · Or: Geoscientific Model Development (EGU) · Type: Software / Methods article · ~8,000 words</div>
+      <div class="ps-grid">
+        <div class="ps"><div class="ps-n">§ 1</div><div class="ps-t">Introduction</div><p class="ps-d">Motivation: SWAT+ represents a major architectural shift from SWAT2012. Despite rapid adoption, no systematic analysis of its user difficulties exists. Research objectives.</p></div>
+        <div class="ps"><div class="ps-n">§ 2</div><div class="ps-t">SWAT+ Architecture Overview</div><p class="ps-d">New spatial framework (LSUs, landscape), decision tables, SQLite database, three-interface ecosystem, gwflow extension. Contrast with SWAT2012 to contextualize issue origins.</p></div>
+        <div class="ps"><div class="ps-n">§ 3</div><div class="ps-t">Methodology</div><p class="ps-d">Grounded theory coding of 600+ threads from swatplus, swatplus-editor, qswatplus groups. Open/axial coding; classification dimensions; reproducibility via Python pipeline.</p></div>
+        <div class="ps"><div class="ps-n">§ 4</div><div class="ps-t">Results: Taxonomy</div><p class="ps-d">9-category taxonomy with frequency distribution, type breakdown, representative thread examples, and cross-group pattern analysis.</p></div>
+        <div class="ps"><div class="ps-n">§ 5</div><div class="ps-t">Discussion: Theoretical Gaps</div><p class="ps-d">Decision table behaviour (CAT-04) and calibration protocol (CAT-03) as the two scientifically substantive gaps unique to SWAT+. Compare to SWAT-MODFLOW findings.</p></div>
+        <div class="ps"><div class="ps-n">§ 6</div><div class="ps-t">Comparative Analysis</div><p class="ps-d">Side-by-side comparison of SWAT+ vs SWAT-MODFLOW issue profiles. Structural reasons for the differences. Implications for both development teams.</p></div>
+        <div class="ps"><div class="ps-n">§ 7</div><div class="ps-t">Recommendations</div><p class="ps-d">Prioritized development roadmap: input validator, compatibility matrix, decision table cookbook, sequential calibration SOP, output variables guide.</p></div>
+        <div class="ps"><div class="ps-n">App A</div><div class="ps-t">Annotated Thread Database</div><p class="ps-d">Supplementary CSV: all coded threads with category, type, priority, resolution status. Citable dataset for future meta-analyses.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="ft">David Serrano · PhD Research · Advisor: Dr. Seonggyu Park (OSU) · April 2026</div>
+    <div class="ftag">github.com/[your-handle]/swatplus-issue-analysis</div>
+  </footer>
+
+</div>
+</body>
+</html>
