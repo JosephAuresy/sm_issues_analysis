@@ -1,4 +1,4 @@
-# SWAT-MODFLOW Community Issue Analysis
+# Foundational Framework for Diagnosing User–Model Interaction Failures in Complex Scientific Models
 
 **Author:** David Serrano  
 **Status:** Work in progress — partial results shared for academic transparency  
@@ -9,7 +9,7 @@
 
 ## Overview
 
-This repository contains partial results from an ongoing research project analyzing user-reported issues in the public SWAT-MODFLOW Google Group (2015–2025).
+This repository contains partial results from an ongoing research project analyzing user-reported issues in the public SWAT AND MODFLOW Google Groups.
 
 The purpose of this repository is to document **descriptive observations** and **high-level patterns** identified during the early stages of a broader PhD research agenda on coupled surface water–groundwater modelling.
 
@@ -63,7 +63,7 @@ A manuscript based on this work is currently under preparation.
 Until formal publication, please cite this work as:
 
 ```
-Serrano, D. (2026). SWAT-MODFLOW Community Issue Analysis.
+Serrano, D. (2026). Foundational Framework for Diagnosing User–Model Interaction Failures in Complex Scientific Models.
 Partial results from ongoing PhD research. Texas Tech University.
 
 ```
